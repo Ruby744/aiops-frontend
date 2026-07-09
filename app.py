@@ -26,6 +26,7 @@ with st.form("telemetry_form"):
     submit_button = st.form_submit_button("Run AI Diagnostic", use_container_width=True)
 
 # 3. Handle Form Submission
+# 3. Handle Form Submission
 if submit_button:
     payload = {
         "serial_number": serial_number,
@@ -37,12 +38,24 @@ if submit_button:
     }
 
     try:
-        with st.spinner('Transmitting telemetry to n8n AI Agent...'):
-            response = requests.post(WEBHOOK_URL, json=payload)
+        with st.spinner('Transmitting telemetry... waiting for AI Engineer diagnosis...'):
+            # Added a timeout so the app doesn't hang forever if n8n is slow
+            response = requests.post(WEBHOOK_URL, json=payload, timeout=30)
             
         if response.status_code == 200:
-            st.success("✅ Telemetry successfully transmitted. Check your email for the AI diagnostic report.")
+            st.success("✅ Alert dispatched to email.")
+            
+            # Extract the JSON response from n8n
+            response_data = response.json()
+            ai_text = response_data.get("diagnosis", "No diagnosis text returned.")
+            
+            # Display it in a nice container on the web page
+            st.subheader("🤖 AI Root Cause Analysis")
+            st.info(ai_text)
+            
         else:
             st.error(f"⚠️ Error: n8n returned status code {response.status_code}")
+    except requests.exceptions.Timeout:
+        st.error("❌ The AI took too long to respond. The email might still arrive.")
     except Exception as e:
         st.error(f"❌ Connection Error: Could not reach n8n workflow. Details: {e}")
