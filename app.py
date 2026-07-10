@@ -16,6 +16,7 @@ WEBHOOK_URL = "https://nesma2026.app.n8n.cloud/webhook-test/3903ce2a-b204-463a-9
 with st.form("telemetry_form"):
     serial_number = st.text_input("Drive Serial Number", value="SN-DEMO-9999")
     
+    col1, col2 = st.columns(2)
     with col1:
         smart_5 = st.number_input(
             "Reallocated Sectors (SMART 5)", 
