@@ -10,7 +10,7 @@ st.markdown("Enter drive telemetry below to trigger the autonomous n8n predictio
 # Explicitly state the model limits at the top of the app
 st.info("ℹ️ **Model Limitations:** This Random Forest model was trained on historical Backblaze data. To prevent extrapolation errors, inputs are capped at the maximum values observed in the training dataset.")
 
-WEBHOOK_URL = "YOUR_N8N_WEBHOOK_URL_HERE"
+WEBHOOK_URL = "https://nesma2026.app.n8n.cloud/webhook-test/3903ce2a-b204-463a-930c-f53cab8c43c8"
 
 # Build the Form with Guardrails
 with st.form("telemetry_form"):
