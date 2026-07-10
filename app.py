@@ -49,34 +49,42 @@ with st.form("telemetry_form"):
 
 # 3. Handle Form Submission
 if submit_button:
-    payload = {
-        "serial_number": serial_number,
-        "smart_5_raw": smart_5,
-        "smart_9_raw": smart_9,
-        "smart_187_raw": smart_187,
-        "smart_194_raw": smart_194,
-        "smart_197_raw": smart_197
-    }
+    # --- NEW: Backend Validation ---
+    if (smart_5 > 10000 or smart_5 < 0 or
+        smart_187 > 5000 or smart_187 < 0 or
+        smart_197 > 10000 or smart_197 < 0 or
+        smart_9 > 80000 or smart_9 < 0 or
+        smart_194 > 70 or smart_194 < 10):
+        
+        st.error("One or more metrics exceed the model's safe training limits. Please adjust the values to stay within the boundaries before submitting.")
+    
+    else:
+        # --- Proceed with API Call if Valid ---
+        payload = {
+            "serial_number": serial_number,
+            "smart_5_raw": smart_5,
+            "smart_9_raw": smart_9,
+            "smart_187_raw": smart_187,
+            "smart_194_raw": smart_194,
+            "smart_197_raw": smart_197
+        }
 
-    try:
-        with st.spinner('Transmitting telemetry... waiting for AI Engineer diagnosis...'):
-            # Added a timeout so the app doesn't hang forever if n8n is slow
-            response = requests.post(WEBHOOK_URL, json=payload, timeout=30)
-            
-        if response.status_code == 200:
-            st.success("✅ Alert dispatched to email.")
-            
-            # Extract the JSON response from n8n
-            response_data = response.json()
-            ai_text = response_data.get("diagnosis", "No diagnosis text returned.")
-            
-            # Display it in a nice container on the web page
-            st.subheader("🤖 AI Root Cause Analysis")
-            st.info(ai_text)
-            
-        else:
-            st.error(f"⚠️ Error: n8n returned status code {response.status_code}")
-    except requests.exceptions.Timeout:
-        st.error("❌ The AI took too long to respond. The email might still arrive.")
-    except Exception as e:
-        st.error(f"❌ Connection Error: Could not reach n8n workflow. Details: {e}")
+        try:
+            with st.spinner('Transmitting telemetry... waiting for AI Engineer diagnosis...'):
+                response = requests.post(WEBHOOK_URL, json=payload, timeout=30)
+                
+            if response.status_code == 200:
+                st.success("✅ Alert dispatched to email.")
+                
+                response_data = response.json()
+                ai_text = response_data.get("diagnosis", "No diagnosis text returned.")
+                
+                st.subheader("🤖 AI Root Cause Analysis")
+                st.info(ai_text)
+                
+            else:
+                st.error(f"Error: n8n returned status code {response.status_code}")
+        except requests.exceptions.Timeout:
+            st.error("The AI took too long to respond. The email might still arrive.")
+        except Exception as e:
+            st.error(f"Connection Error: Could not reach n8n workflow. Details: {e}")
