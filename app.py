@@ -16,32 +16,31 @@ WEBHOOK_URL = "https://nesma2026.app.n8n.cloud/webhook-test/3903ce2a-b204-463a-9
 with st.form("telemetry_form"):
     serial_number = st.text_input("Drive Serial Number", value="SN-DEMO-9999")
     
-    col1, col2 = st.columns(2)
     with col1:
         smart_5 = st.number_input(
             "Reallocated Sectors (SMART 5)", 
-            min_value=0, max_value=10000, value=200, 
+            value=200, 
             help="Limit: 0 to 10,000. Values above this usually indicate immediate mechanical failure."
         )
         smart_187 = st.number_input(
             "Uncorrectable Errors (SMART 187)", 
-            min_value=0, max_value=5000, value=50,
+            value=50,
             help="Limit: 0 to 5,000."
         )
         smart_197 = st.number_input(
             "Pending Sectors (SMART 197)", 
-            min_value=0, max_value=10000, value=500,
+            value=500,
             help="Limit: 0 to 10,000."
         )
     with col2:
         smart_9 = st.number_input(
             "Power-On Hours (SMART 9)", 
-            min_value=0, max_value=80000, value=60000,
+            value=60000,
             help="Limit: 0 to 80,000 hours (Approx 9 years). The model cannot accurately predict beyond this age."
         )
         smart_194 = st.number_input(
             "Temperature °C (SMART 194)", 
-            min_value=10, max_value=70, value=45,
+            value=45,
             help="Limit: 10°C to 70°C. Standard operating temperatures."
         )
 
